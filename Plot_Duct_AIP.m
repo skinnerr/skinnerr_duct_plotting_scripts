@@ -117,7 +117,7 @@ for dir_i = 1:length(dir_data);
             color_str = '';
         end
         
-        % Cycle through the line styles, one for each directory.
+        % Cycle through the line styles, one for each file.
         style_str = styles{1+mod(dir_i-1,length(styles))};
         
         % Determine name to appear on legend.
@@ -137,7 +137,7 @@ for dir_i = 1:length(dir_data);
              [style_str,color_str], ...
              'DisplayName', display_name);
     end
-    % Reset color plotting order for the next file.
+    % Reset color plotting order for the next directory.
     set(hax,'ColorOrderIndex',1);
     
 end

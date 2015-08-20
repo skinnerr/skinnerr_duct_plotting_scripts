@@ -8,7 +8,7 @@ function [ dt, t, xyz, p, u, T, nu ] = Load_Varts_Directory( directory_path )
 %%%
 
     % Flag to insert NaNs into data to bridge non-contiguous time steps.
-    insertNaNs = false;
+    insertNaNs = true;
 
     %%%
     % Sanitize inputs.
@@ -70,6 +70,10 @@ function [ dt, t, xyz, p, u, T, nu ] = Load_Varts_Directory( directory_path )
             % Warn if probe locations are not consistent.
             if any(size(tmp_xyz) ~= size(xyz))
                 warning('Probe locations change in file %s', data_path);
+            end
+            % Warn if time step size is not consistent.
+            if tmp_dt ~= dt(end)
+                warning('Time step size change in file %s', data_path);
             end
             % Insert NaNs if we are missing some time steps.
             if insertNaNs && (t(end) + 1 ~= tmp_t(1))
