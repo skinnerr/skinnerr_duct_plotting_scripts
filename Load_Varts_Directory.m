@@ -1,4 +1,4 @@
-function [ dt, t, xyz, p, u, T, nu ] = Load_Varts_Directory( directory_path )
+function [ dt, ts, xyz, p, u, T, nu ] = Load_Varts_Directory( directory_path )
 %%%
 %
 % Loads all varts data files from a directory.
@@ -44,7 +44,7 @@ function [ dt, t, xyz, p, u, T, nu ] = Load_Varts_Directory( directory_path )
     %%%
     
     dt  = [];
-    t   = [];
+    ts  = [];
     xyz = [];
     p   = [];
     u   = [];
@@ -63,7 +63,7 @@ function [ dt, t, xyz, p, u, T, nu ] = Load_Varts_Directory( directory_path )
         waitbar(i/length(files),hwait,sprintf('%s %i / %i',load_str,i,length(files)));
         data_path = [directory_path,files(i).name];
         
-        [tmp_xyz, tmp_dt, tmp_t, tmp_p, tmp_u, tmp_T, tmp_nu] = ...
+        [tmp_xyz, tmp_dt, tmp_ts, tmp_p, tmp_u, tmp_T, tmp_nu] = ...
             Load_Varts_Data(data_path);
         
         if i > 1
@@ -76,12 +76,12 @@ function [ dt, t, xyz, p, u, T, nu ] = Load_Varts_Directory( directory_path )
                 warning('Time step size change in file %s', data_path);
             end
             % Insert NaNs if we are missing some time steps.
-            if insertNaNs && (t(end) + 1 ~= tmp_t(1))
+            if insertNaNs && (ts(end) + 1 ~= tmp_ts(1))
                 sprintf('Some time steps skipped before file %s', data_path);
-                t  = cat(1, t, nan);
-                p  = cat(2, p,  NaN(size( p,1), 1));
-                u  = cat(2, u,  NaN(size( u,1), 1, 3));
-                T  = cat(2, T,  NaN(size( T,1), 1));
+                ts = cat(1, ts, nan);
+                p  = cat(2,  p, NaN(size( p,1), 1));
+                u  = cat(2,  u, NaN(size( u,1), 1, 3));
+                T  = cat(2,  T, NaN(size( T,1), 1));
                 nu = cat(2, nu, NaN(size(nu,1), 1));
                 
             end
@@ -89,7 +89,7 @@ function [ dt, t, xyz, p, u, T, nu ] = Load_Varts_Directory( directory_path )
         
         xyz = tmp_xyz;
         dt  = cat(1,  dt, tmp_dt );
-        t   = cat(1,   t, tmp_t  );
+        ts  = cat(1,  ts, tmp_ts  );
         p   = cat(2,   p, tmp_p  );
         u   = cat(2,   u, tmp_u  );
         T   = cat(2,   T, tmp_T  );

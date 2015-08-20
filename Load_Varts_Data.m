@@ -1,4 +1,4 @@
-function [ xyz, dt, t, p, u, T, nu ] = Load_Varts_Data( data_path )
+function [ xyz, dt, ts, p, u, T, nu ] = Load_Varts_Data( data_path )
 %%%
 %
 % Loads varts data saved by PHASTA.
@@ -54,9 +54,6 @@ function [ xyz, dt, t, p, u, T, nu ] = Load_Varts_Data( data_path )
         % Reshape so we're indexed by (probe, field).
         xyz = reshape(xyz, length(xyz)/4, 4);
         
-        % Remove the first field, which is just the probe ID.
-        xyz = xyz(:,2:4);
-        
         n_probes = length(xyz);
         
         %%%
@@ -89,7 +86,7 @@ function [ xyz, dt, t, p, u, T, nu ] = Load_Varts_Data( data_path )
         end
         
         increment = 1 + n_vars;
-        t = probe_data(1:increment:end);
+        ts = probe_data(1:increment:end);
         probe_data(1:increment:end) = [];
         
         probe_data = reshape(probe_data, n_vars, length(probe_data) / n_vars)';

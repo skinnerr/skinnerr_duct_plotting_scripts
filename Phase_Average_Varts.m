@@ -1,7 +1,7 @@
-function [ avg_varts_data ] = Phase_Average_Varts( varts_data, settings )
+function [ avg_ts, avg_field ] = Phase_Average_Varts( dt, ts, field, settings )
 %%%
 %
-% Performs phase averaging on a given structure of varts data.
+% Performs phase averaging on a given set of data.
 %
 % Ryan Skinner, August 2015
 %
@@ -11,27 +11,25 @@ if settings.start_ts >= settings.end_ts
     error('Out-of-order of start and end time steps for phase averaging.');
 end
 
-% Assume uniform time step size.
-if varts_data.dt(1) ~= mean(varts_data.dt)
-    error('Phase averaging for variable-timestep varts data not implemented.');
-end
-dt = varts_data.dt(1);
-
 %%%
 % Create bins for phase averaging.
 %%%
 
 % Calculate number of bins.
 period = 1 / settings.freq_Hz;
-n_bins = floor(period / dt);
+ts_per_period = period / dt;
+n_bins = ceil(ts_per_period);
 
-% Create bin times.
-t_bins = dt*((1:n_bins)-1);
+% Create phase-averaged time bins, field bins, and counter bins.
+avg_ts = dt*((1:n_bins)-1);
+avg_field = zeros(1,n_bins);
+avg_count = zeros(1,n_bins);
 
 % Ensure window contains multiple periods.
 if settings.end_ts - settings.start_ts <= n_bins
     warning('Phase averaging requested time window is too small.');
-    avg_varts_data = varts_data;
+    avg_ts = ts;
+    avg_field = field;
     return
 end
 
@@ -39,12 +37,12 @@ end
 % Determine where to start and stop averaging.
 %%%
 
-start_i = find(varts_data.t == settings.start_ts, 1);
+start_i = find(ts == settings.start_ts, 1);
 if length(start_i) < 1
     error('Start time step not found in data for phase averaging.');
 end
 
-end_i = find(varts_data.t == settings.end_ts, 1);
+end_i = find(ts == settings.end_ts, 1);
 if length(end_i) < 1
     error('Start time step not found in data for phase averaging.');
 end
@@ -53,10 +51,16 @@ end
 % Bin and calculate phase averages.
 %%%
 
-ts = varts_data.t(start_i:end_i);
-for ts_i = 1:length(ts);
-    bin_i = mod((ts(ts_i) - settings.start_ts), n_bins);
+norm_ts = ts(start_i:end_i) - settings.start_ts;
+for nts_i = 1:length(norm_ts);
+    if isnan(norm_ts(nts_i))
+        continue
+    end
+    bin_i = 1 + floor(mod(norm_ts(nts_i), ts_per_period));
+    avg_field(bin_i) = avg_field(bin_i) + field(nts_i + start_i);
+    avg_count(bin_i) = avg_count(bin_i) + 1;
 end
+avg_field = avg_field ./ avg_count;
 
 
 end
