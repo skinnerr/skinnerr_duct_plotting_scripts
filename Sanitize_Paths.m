@@ -9,7 +9,7 @@
 function [ dir_paths ] = Sanitize_Paths( dir_paths )
 
 if length(dir_paths) < 1
-    disp('No directories specified to load.');
+    error('No directories specified.');
     return
 end
 

@@ -1,7 +1,9 @@
-function [ delta_t, t, probe_locations, probe_data ] = Load_Varts_Data( data_path )
+function [ xyz, dt, t, p, u, T, nu ] = Load_Varts_Data( data_path )
 %%%
 %
 % Loads varts data saved by PHASTA.
+% 
+% Ryan Skinner, August 2015
 %
 %%%
 
@@ -30,7 +32,16 @@ function [ delta_t, t, probe_locations, probe_data ] = Load_Varts_Data( data_pat
             error('File ended before expected; no time step duration found: %s',data_path);
         end
         tokens = strsplit(first_line,': ');
-        delta_t = str2double(tokens(2));
+        dt = str2double(tokens(2));
+        
+        %%%
+        % Move to beginning of probe location data.
+        %%%
+        
+        line = fgetl(file_ID);
+        while ~any(strfind(line,'Probe ID'))
+            line = strtrim(fgetl(file_ID));
+        end
         
         %%%
         % Read subequent lines containing probe IDs and locations.
@@ -38,61 +49,58 @@ function [ delta_t, t, probe_locations, probe_data ] = Load_Varts_Data( data_pat
         %  '    1       -0.215900000000  0.000000000000  0.000000000000')
         %%%
         
-        probe_locations = {};
+        xyz = fscanf(file_ID,'%f');
         
-        line = strtrim(fgetl(file_ID));
-        while ~strcmp(line,'Probe Data:')
-            
-            tokens = strsplit(line);
-            if length(tokens) ~= 4
-                % Ignore lines not in the format of "ID x y z"
-                line = strtrim(fgetl(file_ID));
-                continue
-            end
-            x = str2double(tokens(2));
-            y = str2double(tokens(3));
-            z = str2double(tokens(4));
-            probe_locations{end+1} = [x, y, z];
-            
-            % On to the next line!
+        % Reshape so we're indexed by (probe, field).
+        xyz = reshape(xyz, length(xyz)/4, 4);
+        
+        % Remove the first field, which is just the probe ID.
+        xyz = xyz(:,2:4);
+        
+        n_probes = length(xyz);
+        
+        %%%
+        % Move to beginning of probe trace data.
+        %%%
+        
+        line = fgetl(file_ID);
+        while ~any(strfind(line,'Probe Data'))
             line = strtrim(fgetl(file_ID));
         end
-        
-        n_probes = length(probe_locations);
         
         %%%
         % Read subequent lines containing probe data at each time step.
         % (These lines expected to look like...
-        %  '  281100  0.7908003E+05  0.2385260E+03 -0.5588275E+00 ...')
+        %  '  281100  0.7908003E+05  0.2385260E+03 -0.5588275E+00 ...'
+        %  i.e. timestep, fields for point 1, fields for point 2, etc.)
         %%%
         
         % Each field stores pressure (p), velocity (u,v,w), temperature (T), and kinematic
         % viscosity (nu). This totals six fields per probe point.
         n_fields = 6;
         
-        probe_data_raw = {};
-        t_start = [];
+        n_vars = n_fields * n_probes;
         
-        line = strtrim(fgetl(file_ID));
-        while ischar(line)
-            
-            tokens = strsplit(line);
-            tokens(1)
-            if length(tokens) ~= 1 + (n_fields * n_probes)
-                % Line is truncated or corrupt; time to stop.
-                break
-            end
-            % Save the first timestep.
-            if length(t_start) ~= 1
-                t_start = str2double(tokens(1));
-            end
-            % Read all raw numeric data into a buffer.
-            blank_indices = strfind(line,' ');
-            probe_data_raw{end+1} = str2num(line(blank_indices(1)+1:end));
-            
-            % On to the next line!
-            line = strtrim(fgetl(file_ID));
+        probe_data = fscanf(file_ID,'%f');
+        
+        % Ensure data is not truncated or corrupt.
+        if mod(length(probe_data), 1 + (n_fields * n_probes)) ~= 0
+            error('Probe data is corrupt for %s.', data_path);
         end
+        
+        increment = 1 + n_vars;
+        t = probe_data(1:increment:end);
+        probe_data(1:increment:end) = [];
+        
+        probe_data = reshape(probe_data, n_vars, length(probe_data) / n_vars)';
+        
+        % These are now indexed by field(probeID, timestep).
+        p        = probe_data(:,1:n_fields:end)';
+        u(:,:,1) = probe_data(:,2:n_fields:end)';
+        u(:,:,2) = probe_data(:,3:n_fields:end)';
+        u(:,:,3) = probe_data(:,4:n_fields:end)';
+        T        = probe_data(:,5:n_fields:end)';
+        nu       = probe_data(:,6:n_fields:end)';
         
     catch exception
         fclose(file_ID);
