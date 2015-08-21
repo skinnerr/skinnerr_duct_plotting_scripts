@@ -57,7 +57,7 @@ for nts_i = 1:length(norm_ts);
         continue
     end
     bin_i = 1 + floor(mod(norm_ts(nts_i), ts_per_period));
-    avg_field(bin_i) = avg_field(bin_i) + field(nts_i + start_i);
+    avg_field(bin_i) = avg_field(bin_i) + field(nts_i - 1 + start_i);
     avg_count(bin_i) = avg_count(bin_i) + 1;
 end
 avg_field = avg_field ./ avg_count;
