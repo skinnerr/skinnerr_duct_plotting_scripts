@@ -167,13 +167,13 @@ for dir_i = 1:length(dirs)
     for probe_i = 1:length(probeIDs)
         fig_number = 100 + probeIDs(probe_i);
         figure(fig_number);
-        hold on;
         time_step = varts{dir_i}.dt(1);
-        [freq, spectral_power] = Fourier_Transform(v.u(:, probe_i, 2), time_step);
+        [freq, spectral_power] = Fourier_Transform(v.u(probe_i, :, 2), time_step);
         loglog(freq, spectral_power, 'DisplayName', name);
         title(['Power Spectrum for Probe ', num2str(probeIDs(probe_i))]);
         xlabel('Frequency (Hz)');
         ylabel('Spectral Power');
+        hold on;
     end
     
 end
