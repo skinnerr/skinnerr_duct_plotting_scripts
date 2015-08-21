@@ -12,8 +12,12 @@ Set_Default_Plot_Properties();
 % Initialize variables.
 %%%
 
+% Physical constants.
 gamma = 1.4;
 R     = 288.294;
+
+% Line styles to cycle through for each directory.
+styles = {'-','--','-.',':'};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Directories containing plot data. %
@@ -21,10 +25,10 @@ R     = 288.294;
 dirs = {};
 dir_names = {};
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% dirs{end+1} = 'varts_1';
-% dirs{end+1} = 'varts_2';
-dirs{end+1} = 'varts_3'; dir_names{end+1} = 'varts_3';
-dirs{end+1} = 'varts_4'; dir_names{end+1} = 'varts_4';
+dirs{end+1} = 'varts_1'; dir_names{end+1} = 'varts_1';
+% dirs{end+1} = 'varts_2'; dir_names{end+1} = 'varts_2';
+% dirs{end+1} = 'varts_3'; dir_names{end+1} = 'varts_3';
+% dirs{end+1} = 'varts_4'; dir_names{end+1} = 'varts_4';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -54,6 +58,11 @@ probeIDs = [1, 261, 264, 267, 270, 273];
 
 % Directories.
 dirs = Sanitize_Paths(dirs);
+
+% Directory names.
+if length(dirs) ~= length(dir_names)
+    error('Number of paths is not equal to number of named directories.');
+end
 
 % Phase-averaging.
 if ~do_phase_avg
@@ -96,10 +105,8 @@ for dir_i = 1:length(dirs)
 end
 
 %%%
-% Plot data.
+% Sanitize dt inputs to plotting functions.
 %%%
-
-styles = {'-','--','-.',':'};
 
 % Set dt to NaN if any directory has non-uniform dt or if two directory dt's don't match.
 dt = nan(1,length(dirs));
@@ -112,6 +119,10 @@ if mean(dt) ~= dt(1)
     dt = nan(1:length(dirs));
 end
 
+%%%
+% Loop through the directories and plot their contents.
+%%%
+
 for dir_i = 1:length(dirs)
     
     % Pass an empty structure of settings if phase-averaging is disabled.
@@ -120,16 +131,50 @@ for dir_i = 1:length(dirs)
         settings = avg_settings{dir_i};
     end
     
+    % Set properties for line names and styles.
     name = dir_names{dir_i};
-
     style_i = 1 + mod(dir_i-1, length(styles));
     style   = styles{style_i};
     
+    v = varts{dir_i};
+    % Calculate extra fields.
     tmp_ts = varts{dir_i}.ts;
+    speed  = sqrt(sum(v.u(:, :, :) .* v.u(:, :, :), 3));
+    mach   =  sqrt(sum(v.u(:, :, :) .* v.u(:, :, :), 3) ./ (gamma*R*v.T(:, :)));
+    rho    = v.p(:,:,:) ./ (R*v.T(:, :));
+    dynp   = 0.5 * rho .* speed.^2;
+    totp   = v.p(:,:) + dynp;
     
-    Plot_Varts_Data(dt, tmp_ts, varts{dir_i}.p,   'p', settings, name, probeIDs, style);
-    Plot_Varts_Data(dt, tmp_ts, varts{dir_i}.T,   'T', settings, name, probeIDs, style);
-    Plot_Varts_Data(dt, tmp_ts, varts{dir_i}.nu, 'nu', settings, name, probeIDs, style);
+    %%%
+    % Plot time histories.
+    %%%
+    
+    Plot_Varts_Data(dt, tmp_ts, v.u(:,:,1), 'u1', settings, name, probeIDs, style);
+    Plot_Varts_Data(dt, tmp_ts, v.u(:,:,2), 'u2', settings, name, probeIDs, style);
+    Plot_Varts_Data(dt, tmp_ts, v.u(:,:,3), 'u3', settings, name, probeIDs, style);
+    Plot_Varts_Data(dt, tmp_ts, v.T,         'T', settings, name, probeIDs, style);
+    Plot_Varts_Data(dt, tmp_ts, speed,    'magu', settings, name, probeIDs, style);
+    Plot_Varts_Data(dt, tmp_ts, mach,        'M', settings, name, probeIDs, style);
+    Plot_Varts_Data(dt, tmp_ts, rho,       'rho', settings, name, probeIDs, style);
+    Plot_Varts_Data(dt, tmp_ts, v.p,         'p', settings, name, probeIDs, style);
+    Plot_Varts_Data(dt, tmp_ts, dynp,     'dynp', settings, name, probeIDs, style);
+    Plot_Varts_Data(dt, tmp_ts, totp,     'totp', settings, name, probeIDs, style);
+    
+    %%%
+    % Plot Fourier transforms.
+    %%%
+    
+    for probe_i = 1:length(probeIDs)
+        fig_number = 100 + probeIDs(probe_i);
+        figure(fig_number);
+        hold on;
+        time_step = varts{dir_i}.dt(1);
+        [freq, spectral_power] = Fourier_Transform(v.u(:, probe_i, 2), time_step);
+        loglog(freq, spectral_power, 'DisplayName', name);
+        title(['Power Spectrum for Probe ', num2str(probeIDs(probe_i))]);
+        xlabel('Frequency (Hz)');
+        ylabel('Spectral Power');
+    end
     
 end
 
