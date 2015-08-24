@@ -23,7 +23,7 @@ function [ output_args ] = Plot_Varts_Data( dt, ts, field, field_name, avg_setti
     fig_width  = 1000;
     fig_height = 300;
     
-    valid_plot_fields = {'u1','u2','u3','T','magu','M','rho','p','totp','dynp','nu'};
+    valid_plot_fields = {'u1','u2','u3','T','umag','M','rho','p','totp','dynp','nu'};
     
     field_index = find(strcmp(valid_plot_fields, field_name));
     
@@ -68,24 +68,36 @@ function [ output_args ] = Plot_Varts_Data( dt, ts, field, field_name, avg_setti
         end
         avg_field = [];
         for probe_i = 1:size(field,1)
-            [avg_ts, tmp_field] = Phase_Average_Varts(dt, ts, field(probe_i,:), ...
-                                                      avg_settings);
+            [avg_t, tmp_field, max_count] = ...
+                Phase_Average_Varts(dt, ts, field(probe_i,:), ...
+                                    avg_settings);
             avg_field = cat(1, avg_field, tmp_field);
         end
-        ts    = avg_ts;
+        time  = avg_t;
         field = avg_field;
+        x_label = 'Time (sec)';
+    else
+        time  = ts;
+        x_label = 'Time Step';
     end
     
     %%%
     % Plot the data!
     %%%
-
+    
+    display_append = '';
+    if ~isempty(avg_settings)
+        display_append = [' Periods:', num2str(max_count)];
+    end
+    
     hold on;
     for probe_i = 1:size(field,1)
-        plot(ts, field(probe_i,:), ...
+        display_name = [name, ' ID:', num2str(probeIDs(probe_i)), display_append];
+        plot(time, field(probe_i,:), ...
              'LineStyle', style, ...
-             'DisplayName', [name, ' ID:', num2str(probeIDs(probe_i))]);
+             'DisplayName', display_name);
     end
+    xlim([min(time),max(time)]);
     
     %%%
     % Add annotations: legend and labels.
@@ -105,7 +117,7 @@ function [ output_args ] = Plot_Varts_Data( dt, ts, field, field_name, avg_setti
                 'Dynamic Pressure (Pa)', ...
                 'Kinematic Viscosity'};
 	ylabel(y_labels{field_index});
-    xlabel('Time Step');
+    xlabel(x_label);
     
     % Reset color plotting order for the next time the plot is drawn to.
     set(hax1,'ColorOrderIndex',1);

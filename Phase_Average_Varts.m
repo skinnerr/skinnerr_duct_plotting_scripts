@@ -1,4 +1,4 @@
-function [ avg_ts, avg_field ] = Phase_Average_Varts( dt, ts, field, settings )
+function [ avg_t, avg_field, max_count ] = Phase_Average_Varts( dt, ts, field, settings )
 %%%
 %
 % Performs phase averaging on a given set of data.
@@ -21,14 +21,14 @@ ts_per_period = period / dt;
 n_bins = ceil(ts_per_period);
 
 % Create phase-averaged time bins, field bins, and counter bins.
-avg_ts = dt*((1:n_bins)-1);
+avg_t = dt*((1:n_bins)-1);
 avg_field = zeros(1,n_bins);
 avg_count = zeros(1,n_bins);
 
 % Ensure window contains multiple periods.
 if settings.end_ts - settings.start_ts <= n_bins
     warning('Phase averaging requested time window is too small.');
-    avg_ts = ts;
+    avg_t = ts;
     avg_field = field;
     return
 end
@@ -37,7 +37,7 @@ end
 % Determine where to start and stop averaging.
 %%%
 
-start_i = find(ts == settings.start_ts, 1);
+start_i = find(ts == settings.start_ts, 1)
 if length(start_i) < 1
     error('Start time step not found in data for phase averaging.');
 end
@@ -61,6 +61,8 @@ for nts_i = 1:length(norm_ts);
     avg_count(bin_i) = avg_count(bin_i) + 1;
 end
 avg_field = avg_field ./ avg_count;
+
+max_count = max(avg_count);
 
 
 end
