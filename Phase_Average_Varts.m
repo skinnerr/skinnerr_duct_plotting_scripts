@@ -37,14 +37,14 @@ end
 % Determine where to start and stop averaging.
 %%%
 
-start_i = find(ts == settings.start_ts, 1)
+start_i = find(ts == settings.start_ts, 1);
 if length(start_i) < 1
     error('Start time step not found in data for phase averaging.');
 end
 
 end_i = find(ts == settings.end_ts, 1);
 if length(end_i) < 1
-    error('Start time step not found in data for phase averaging.');
+    error('End time step not found in data for phase averaging.');
 end
 
 %%%

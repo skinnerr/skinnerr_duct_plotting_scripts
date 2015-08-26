@@ -12,7 +12,10 @@ function [ output_args ] = Plot_Varts_Data( dt, ts, field, field_name, avg_setti
     % Validate inputs.
     %%%
     
-    if length(probeIDs) ~= size(field,1)
+    plotting_exp = isnan(probeIDs(1));
+    do_phase_avg = ~isempty(avg_settings);
+    
+    if ~plotting_exp && (length(probeIDs) ~= size(field,1))
         error('First dimension of field data must match number of probes.')
     end
 
@@ -62,15 +65,14 @@ function [ output_args ] = Plot_Varts_Data( dt, ts, field, field_name, avg_setti
     % Perform phase-averaging if requested.
     %%%
     
-    if ~isempty(avg_settings)
+    if do_phase_avg
         if isnan(dt)
             error('Phase averaging requires constant time step size.');
         end
         avg_field = [];
         for probe_i = 1:size(field,1)
             [avg_t, tmp_field, max_count] = ...
-                Phase_Average_Varts(dt, ts, field(probe_i,:), ...
-                                    avg_settings);
+                Phase_Average_Varts(dt, ts, field(probe_i,:), avg_settings);
             avg_field = cat(1, avg_field, tmp_field);
         end
         time  = avg_t;
@@ -91,11 +93,15 @@ function [ output_args ] = Plot_Varts_Data( dt, ts, field, field_name, avg_setti
     end
     
     hold on;
-    for probe_i = 1:size(field,1)
-        display_name = [name, ' ID:', num2str(probeIDs(probe_i)), display_append];
-        plot(time, field(probe_i,:), ...
-             'LineStyle', style, ...
-             'DisplayName', display_name);
+    if plotting_exp
+        display_name = name;
+        plot(time, field, 'LineStyle', style, 'DisplayName', ...
+             [display_name,' Periods:', num2str(max_count)]);
+    else
+        for probe_i = 1:size(field,1)
+            display_name = [name, ' ID:', num2str(probeIDs(probe_i)), display_append];
+            plot(time, field(probe_i,:), 'LineStyle', style, 'DisplayName', display_name);
+        end
     end
     xlim([min(time),max(time)]);
     

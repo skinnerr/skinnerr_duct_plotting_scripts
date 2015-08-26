@@ -6,12 +6,7 @@
 %
 %%%
 
-function [ dir_paths ] = Sanitize_Paths( dir_paths )
-
-if length(dir_paths) < 1
-    error('No directories specified.');
-    return
-end
+function [ dir_paths ] = Slash_Terminate_Paths( dir_paths )
 
 for i = 1:length(dir_paths)
     % Append forward-slash to all paths names if needed.
