@@ -159,7 +159,7 @@ probeIDs = [267];
 %%%
 
 if length(dirs) < 1
-    warning('No CFD directories specified.');
+    disp('No CFD directories specified.');
 else
 
     % Directories.
@@ -303,10 +303,10 @@ exp_names = {};
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % exp_files{end+1} = '/users/skinnerr/NGC/Blowing_Profiles_S14.4.2_FromJeremy/P3_mdot1.25_300Hz.txt';
 % exp_names{end+1} = 'Exp 300Hz mdot:1.25';
-exp_files{end+1} = 'Experimental_Waveforms_2015-08-03/P3_mdot1.25_100Hz_csv.csv';
-exp_names{end+1} = 'Exp 100Hz mdot:1.25';
-% exp_files{end+1} = 'Experimental_Waveforms_2015-08-03/P3_mdot1.25_300Hz_csv.csv';
-% exp_names{end+1} = 'Exp 301.21Hz mdot:1.25';
+% exp_files{end+1} = 'Experimental_Waveforms_2015-08-03/P3_mdot1.25_100Hz_csv.csv';
+% exp_names{end+1} = 'Exp 100.76Hz mdot:1.25';
+exp_files{end+1} = 'Experimental_Waveforms_2015-08-03/P3_mdot1.25_300Hz_csv.csv';
+exp_names{end+1} = 'Exp 301.21Hz mdot:1.25';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -316,16 +316,16 @@ exp_names{end+1} = 'Exp 100Hz mdot:1.25';
 avg_settings_exp = {};
 DO_PHASE_AVG_EXP = true;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Experimental_Waveforms_2015-08-03/P3_mdot1.25_100Hz_csv.csv
-s.start_ts = 1;
-s.end_ts   = 100;
-s.freq_Hz  = 100;
-avg_settings_exp{end+1} = s;
-% % Experimental_Waveforms_2015-08-03/P3_mdot1.25_300Hz_csv.csv
-% s.start_ts = 1;
+% % Experimental_Waveforms_2015-08-03/P3_mdot1.25_100Hz_csv.csv
+% s.start_ts = 89;
 % s.end_ts   = 100000;
-% s.freq_Hz  = 301.21;
+% s.freq_Hz  = 101.76;
 % avg_settings_exp{end+1} = s;
+% Experimental_Waveforms_2015-08-03/P3_mdot1.25_300Hz_csv.csv
+s.start_ts = 25;
+s.end_ts   = 100000;
+s.freq_Hz  = 301.21;
+avg_settings_exp{end+1} = s;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -336,7 +336,7 @@ DO_PLOT_FOURIER_EXP = false;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if length(exp_files) < 1
-    warning('No experimental data files specified.');
+    disp('No experimental data files specified.');
 else
     
     %%%
@@ -380,7 +380,8 @@ else
         % Convert experimental data to a format expected by the plotting code.
         % Assumption: uniform experimental sampling frequency.
         exp_dt = exp_t(2) - exp_t(1);
-        exp_ts = 1 + (exp_t ./ exp_dt);
+        exp_ts = 1 + round(exp_t ./ exp_dt);
+        % IMPORTANT: round() prevents ts from containing elements like 2.0000000e+5.
 
         if DO_PHASE_AVG_EXP
             settings = avg_settings_exp{exp_i};
@@ -411,21 +412,3 @@ else
     end
 
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

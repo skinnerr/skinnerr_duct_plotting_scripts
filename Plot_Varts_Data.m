@@ -71,7 +71,7 @@ function [ output_args ] = Plot_Varts_Data( dt, ts, field, field_name, avg_setti
         end
         avg_field = [];
         for probe_i = 1:size(field,1)
-            [avg_t, tmp_field, max_count] = ...
+            [avg_t, tmp_field, n_periods] = ...
                 Phase_Average_Varts(dt, ts, field(probe_i,:), avg_settings);
             avg_field = cat(1, avg_field, tmp_field);
         end
@@ -89,14 +89,13 @@ function [ output_args ] = Plot_Varts_Data( dt, ts, field, field_name, avg_setti
     
     display_append = '';
     if ~isempty(avg_settings)
-        display_append = [' Periods:', num2str(max_count)];
+        display_append = ['Periods:', sprintf('%.1f',n_periods)];
     end
     
     hold on;
     if plotting_exp
-        display_name = name;
-        plot(time, field, 'LineStyle', style, 'DisplayName', ...
-             [display_name,' Periods:', num2str(max_count)]);
+        display_name = [name, ' ', display_append];
+        plot(time, field, 'LineStyle', style, 'DisplayName', display_name);
     else
         for probe_i = 1:size(field,1)
             display_name = [name, ' ID:', num2str(probeIDs(probe_i)), display_append];
