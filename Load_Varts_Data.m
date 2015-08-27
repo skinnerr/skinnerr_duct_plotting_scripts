@@ -81,7 +81,8 @@ function [ xyz, dt, ts, p, u, T, nu ] = Load_Varts_Data( data_path )
         probe_data = fscanf(file_ID,'%f');
         
         % Ensure data is not truncated or corrupt.
-        if mod(length(probe_data), 1 + (n_fields * n_probes)) ~= 0
+        if isempty(probe_data) && ...
+           mod(length(probe_data), 1 + (n_fields * n_probes)) ~= 0
             error('Probe data is corrupt for %s.', data_path);
         end
         

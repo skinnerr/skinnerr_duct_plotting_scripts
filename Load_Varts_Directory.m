@@ -63,37 +63,43 @@ function [ dt, ts, xyz, p, u, T, nu ] = Load_Varts_Directory( directory_path )
         waitbar(i/length(files),hwait,sprintf('%s %i / %i',load_str,i,length(files)));
         data_path = [directory_path,files(i).name];
         
-        [tmp_xyz, tmp_dt, tmp_ts, tmp_p, tmp_u, tmp_T, tmp_nu] = ...
-            Load_Varts_Data(data_path);
-        
-        if i > 1
-            % Warn if probe locations are not consistent.
-            if any(size(tmp_xyz) ~= size(xyz))
-                warning('Probe locations change in file %s', data_path);
+        try
+            [tmp_xyz, tmp_dt, tmp_ts, tmp_p, tmp_u, tmp_T, tmp_nu] = ...
+                Load_Varts_Data(data_path);
+
+            if i > 1
+                % Warn if probe locations are not consistent.
+                if any(size(tmp_xyz) ~= size(xyz))
+                    warning('Probe locations change in file %s', data_path);
+                end
+                % Warn if time step size is not consistent.
+                if tmp_dt ~= dt(end)
+                    warning('Time step size change in file %s', data_path);
+                end
+                % Insert NaNs if we are missing some time steps.
+                if insertNaNs && (ts(end) + 1 ~= tmp_ts(1))
+                    sprintf('Some time steps skipped before file %s', data_path);
+                    ts = cat(1, ts, nan);
+                    p  = cat(2,  p, NaN(size( p,1), 1));
+                    u  = cat(2,  u, NaN(size( u,1), 1, 3));
+                    T  = cat(2,  T, NaN(size( T,1), 1));
+                    nu = cat(2, nu, NaN(size(nu,1), 1));
+
+                end
             end
-            % Warn if time step size is not consistent.
-            if tmp_dt ~= dt(end)
-                warning('Time step size change in file %s', data_path);
-            end
-            % Insert NaNs if we are missing some time steps.
-            if insertNaNs && (ts(end) + 1 ~= tmp_ts(1))
-                sprintf('Some time steps skipped before file %s', data_path);
-                ts = cat(1, ts, nan);
-                p  = cat(2,  p, NaN(size( p,1), 1));
-                u  = cat(2,  u, NaN(size( u,1), 1, 3));
-                T  = cat(2,  T, NaN(size( T,1), 1));
-                nu = cat(2, nu, NaN(size(nu,1), 1));
-                
-            end
+
+            xyz = tmp_xyz;
+            dt  = cat(1,  dt, tmp_dt );
+            ts  = cat(1,  ts, tmp_ts  );
+            p   = cat(2,   p, tmp_p  );
+            u   = cat(2,   u, tmp_u  );
+            T   = cat(2,   T, tmp_T  );
+            nu  = cat(2,  nu, tmp_nu );
+            
+        catch
+            disp(['Skipping malformed file ', data_path]);
+            
         end
-        
-        xyz = tmp_xyz;
-        dt  = cat(1,  dt, tmp_dt );
-        ts  = cat(1,  ts, tmp_ts  );
-        p   = cat(2,   p, tmp_p  );
-        u   = cat(2,   u, tmp_u  );
-        T   = cat(2,   T, tmp_T  );
-        nu  = cat(2,  nu, tmp_nu );
         
     end
     delete(hwait);

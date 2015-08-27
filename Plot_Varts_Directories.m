@@ -53,6 +53,7 @@ dir_names = {};
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-150Hz-ExpBlowHalfNumSlits-LowBlowOff';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-150Hz-ExpBlowHalfNumSlits-LowBlowOff-UR';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-300Hz-ExpMatch150803-LBOff';
+dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803-LBOff'; dir_names{end+1} = 'S14.4.2 100Hz Trap ExpMatch150803';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-Steady-LBOff';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-Baseline';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-Baseline25k-recent';
@@ -72,7 +73,7 @@ dir_names = {};
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-RANS-300Hz-LowBlowOff';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-RANS-300Hz-LowBlow1.72';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-RANS-300Hz-prof2-LowBlowOff';
-% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-100Hz-LowBlowOff';
+% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-100Hz-LowBlowOff'; dir_names{end+1} = 'S14.4.2 A1-Iso DDES 100Hz LBOff';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-100Hz-LowBlow0.86';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-100Hz-LowBlow1.72';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-134Hz-LowBlowOff';
@@ -256,16 +257,22 @@ else
         % Plot time histories.
         %%%
 
-        Plot_Varts_Data(tmp_dt, tmp_ts, v.u(:,:,1), 'u1', settings, name, probeIDs, style);
-        Plot_Varts_Data(tmp_dt, tmp_ts, v.u(:,:,2), 'u2', settings, name, probeIDs, style);
-        Plot_Varts_Data(tmp_dt, tmp_ts, v.u(:,:,3), 'u3', settings, name, probeIDs, style);
-        Plot_Varts_Data(tmp_dt, tmp_ts, v.T,         'T', settings, name, probeIDs, style);
+%         Plot_Varts_Data(tmp_dt, tmp_ts, v.u(:,:,1), 'u1', settings, name, probeIDs, style);
+%         Plot_Varts_Data(tmp_dt, tmp_ts, v.u(:,:,2), 'u2', settings, name, probeIDs, style);
+%         Plot_Varts_Data(tmp_dt, tmp_ts, v.u(:,:,3), 'u3', settings, name, probeIDs, style);
+%         Plot_Varts_Data(tmp_dt, tmp_ts, v.T,         'T', settings, name, probeIDs, style);
         Plot_Varts_Data(tmp_dt, tmp_ts, speed,    'umag', settings, name, probeIDs, style);
-        Plot_Varts_Data(tmp_dt, tmp_ts, mach,        'M', settings, name, probeIDs, style);
-        Plot_Varts_Data(tmp_dt, tmp_ts, rho,       'rho', settings, name, probeIDs, style);
-        Plot_Varts_Data(tmp_dt, tmp_ts, v.p,         'p', settings, name, probeIDs, style);
-        Plot_Varts_Data(tmp_dt, tmp_ts, dynp,     'dynp', settings, name, probeIDs, style);
-        Plot_Varts_Data(tmp_dt, tmp_ts, totp,     'totp', settings, name, probeIDs, style);
+%         Plot_Varts_Data(tmp_dt, tmp_ts, mach,        'M', settings, name, probeIDs, style);
+%         Plot_Varts_Data(tmp_dt, tmp_ts, rho,       'rho', settings, name, probeIDs, style);
+%         Plot_Varts_Data(tmp_dt, tmp_ts, v.p,         'p', settings, name, probeIDs, style);
+%         Plot_Varts_Data(tmp_dt, tmp_ts, dynp,     'dynp', settings, name, probeIDs, style);
+%         Plot_Varts_Data(tmp_dt, tmp_ts, totp,     'totp', settings, name, probeIDs, style);
+        
+        % Plot min and max of experiment that we're trying to achieve.
+        target_min = 119;
+        target_max = 247;
+        Plot_Varts_Data(1, [min(tmp_ts),max(tmp_ts)], target_min*[1,1], 'umag', {}, 'Target Min', 267, '--');
+        Plot_Varts_Data(1, [min(tmp_ts),max(tmp_ts)], target_max*[1,1], 'umag', {}, 'Target Max', 267, '--');
 
         %%%
         % Plot Fourier transforms.
@@ -305,8 +312,8 @@ exp_names = {};
 % exp_names{end+1} = 'Exp 300Hz mdot:1.25';
 % exp_files{end+1} = 'Experimental_Waveforms_2015-08-03/P3_mdot1.25_100Hz_csv.csv';
 % exp_names{end+1} = 'Exp 100.76Hz mdot:1.25';
-exp_files{end+1} = 'Experimental_Waveforms_2015-08-03/P3_mdot1.25_300Hz_csv.csv';
-exp_names{end+1} = 'Exp 301.21Hz mdot:1.25';
+% exp_files{end+1} = 'Experimental_Waveforms_2015-08-03/P3_mdot1.25_300Hz_csv.csv';
+% exp_names{end+1} = 'Exp 301.21Hz mdot:1.25';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -316,16 +323,16 @@ exp_names{end+1} = 'Exp 301.21Hz mdot:1.25';
 avg_settings_exp = {};
 DO_PHASE_AVG_EXP = true;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % Experimental_Waveforms_2015-08-03/P3_mdot1.25_100Hz_csv.csv
-% s.start_ts = 89;
-% s.end_ts   = 100000;
-% s.freq_Hz  = 101.76;
-% avg_settings_exp{end+1} = s;
-% Experimental_Waveforms_2015-08-03/P3_mdot1.25_300Hz_csv.csv
-s.start_ts = 25;
+% Experimental_Waveforms_2015-08-03/P3_mdot1.25_100Hz_csv.csv
+s.start_ts = 89;
 s.end_ts   = 100000;
-s.freq_Hz  = 301.21;
+s.freq_Hz  = 101.76;
 avg_settings_exp{end+1} = s;
+% % Experimental_Waveforms_2015-08-03/P3_mdot1.25_300Hz_csv.csv
+% s.start_ts = 25;
+% s.end_ts   = 100000;
+% s.freq_Hz  = 301.21;
+% avg_settings_exp{end+1} = s;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
