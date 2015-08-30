@@ -1,5 +1,5 @@
 function [ output_args ] = Plot_Varts_Data( dt, ts, field, field_name, avg_settings, ...
-                                            name, probeIDs, style )
+                                            name, probeIDs, style, label_seconds )
 %%%
 %
 % Plots varts data.
@@ -66,13 +66,14 @@ function [ output_args ] = Plot_Varts_Data( dt, ts, field, field_name, avg_setti
     %%%
     
     if do_phase_avg
-        if isnan(dt)
+        if mean(dt) ~= dt(1)
             error('Phase averaging requires constant time step size.');
         end
         avg_field = [];
         for probe_i = 1:size(field,1)
             [avg_t, tmp_field, n_periods] = ...
-                Phase_Average_Varts(dt, ts, field(probe_i,:), avg_settings);
+                Phase_Average_Varts(dt(1), ts, field(probe_i,:), ...
+                                    avg_settings);
             avg_field = cat(1, avg_field, tmp_field);
         end
         time  = avg_t;
@@ -81,6 +82,9 @@ function [ output_args ] = Plot_Varts_Data( dt, ts, field, field_name, avg_setti
     else
         time  = ts;
         x_label = 'Time Step';
+        if label_seconds
+            x_label = 'Time (sec)';
+        end
     end
     
     %%%

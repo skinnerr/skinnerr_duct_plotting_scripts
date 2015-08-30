@@ -89,6 +89,7 @@ dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par-waggingjet-fullUBmesh-Coarse2/Run-DDES-Wag-300Hz-ExpMatch150803-LowBlowOff'; dir_names{end+1} = 'S14.4.2 A0-Wag-Fine 300Hz';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par-waggingjet-fullUBmesh-Coarse4/Run-DDES-Wag-300Hz-LowBlowOff';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par-waggingjet-fullUBmesh-Coarse4/Run-DDES-Wag-300Hz-ExpMatch150803-LowBlowOff'; dir_names{end+1} = 'S14.4.2 A0-Wag-Coarse 300Hz';
+% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par-waggingjet-fullUBmesh-Coarse2-fixedBL/Run-DDES-Wag-100Hz-ExpMatch150803-LowBlowOff'; dir_names{end+1} = 'S14.4.2 A0-Wag-Fine 100Hz';
 % 
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-RANS-Start2';
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-Base-KJ';
@@ -109,12 +110,12 @@ dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Phase-average and offset settings. %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Phase-average settings. %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
 avg_settings_cfd = {};
 DO_PHASE_AVG_CFD = false;
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % A1-Iso trapezoidal expmatch
 % s.start_ts = 62000;
 % s.end_ts   = 68800;
@@ -130,13 +131,30 @@ DO_PHASE_AVG_CFD = false;
 % s.end_ts   = 35100;
 % s.freq_Hz  = 300;
 % avg_settings{end+1} = s;
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Test directory
 s.start_ts = 61000;
 s.end_ts   = 65000;
 s.freq_Hz  = 300;
 avg_settings_cfd{end+1} = s;
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Offset settings. %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+offsets_cfd = {};
+DO_OFFSET_CFD = false;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+offsets_cfd{end+1} = 325500;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Whether to convert CFD to time (sec). %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+DO_PLOT_TIME = false;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -178,6 +196,11 @@ else
     if DO_PHASE_AVG_CFD && (length(avg_settings_cfd) ~= length(dirs))
         error('Phase-average settings are not specified for all CFD directories requested.');
     end
+    
+    % Offsets.
+    if DO_OFFSET_CFD && (length(offsets_cfd) ~= length(dirs))
+        error('Offsets are not specified for all CFD directories requested.');
+    end
 
     % Probe points.
     if length(probeIDs) < 1
@@ -192,38 +215,61 @@ else
 
     for dir_i = 1:length(dirs)
 
-        [dt, ts, xyz, p, u, T, nu] = Load_Varts_Directory(dirs{dir_i});
+        [dir_starts, dt, ts, xyz, p, u, T, nu] = ...
+            Load_Varts_Directory(dirs{dir_i}, ...
+                                 DO_OFFSET_CFD, offsets_cfd{dir_i});
 
         % Retain only requested probe points.
         p  =  p(probeIDs,:);
         u  =  u(probeIDs,:,:);
         T  =  T(probeIDs,:);
         nu = nu(probeIDs,:);
+        
+        % Remove all data before the offset.
+        if DO_OFFSET_CFD
+            ts_offset = offsets_cfd{dir_i};
+            if ts(end) < ts_offset
+                error('Offset is greater than maximum time step in %s', ...
+                      dirs{dir_i});
+            else
+                % Deal with cropping; need to modify a few data structures.
+                noncropped_dirs_i = (ts(dir_starts) - ts_offset) > 0;
+                first_cropped_i = find(noncropped_dirs_i);
+                first_cropped_i = first_cropped_i(1) - 1;
+                if first_cropped_i > 0
+                    % Accout for the case where the start time step of a
+                    % file dictates we chop it off, but it still contains
+                    % relevant data.
+                    noncropped_dirs_i(first_cropped_i) = 1;
+                    ts_chopped_in_first_cropped_i = ...
+                        ts_offset - ts(dir_starts(first_cropped_i));
+                end
+                dir_starts = dir_starts(noncropped_dirs_i);
+                dir_starts = dir_starts + 1 - dir_starts(1);
+                dir_starts(2:end) = dir_starts(2:end) - ...
+                             ts_chopped_in_first_cropped_i;
+                dt = dt(noncropped_dirs_i);
+                ts = ts - ts_offset;
+                noncropped_ts_i = ts > 0;
+                p  = p(:,noncropped_ts_i);
+                u  = u(:,noncropped_ts_i);
+                T  = T(:,noncropped_ts_i);
+                nu = nu(:,noncropped_ts_i);
+                ts_crop_i = find(ts > 0, 1);
+                ts = ts(ts_crop_i:end);
+            end
+        end
 
         % Save data to structure
-        varts{dir_i}.dt  = dt;
-        varts{dir_i}.ts  = ts;
-        varts{dir_i}.xyz = xyz;
-        varts{dir_i}.p   = p;
-        varts{dir_i}.u   = u;
-        varts{dir_i}.T   = T;
-        varts{dir_i}.nu  = nu;
+        varts{dir_i}.dir_starts = dir_starts;
+        varts{dir_i}.dt         = dt;
+        varts{dir_i}.ts         = ts;
+        varts{dir_i}.xyz        = xyz;
+        varts{dir_i}.p          = p;
+        varts{dir_i}.u          = u;
+        varts{dir_i}.T          = T;
+        varts{dir_i}.nu         = nu;
 
-    end
-
-    %%%
-    % Sanitize dt inputs to plotting functions.
-    %%%
-
-    % Set dt to NaN if any directory has non-uniform dt or if two directory dt's don't match.
-    dt = nan(1,length(dirs));
-    for dir_i = 1:length(dirs)
-        if abs(mean(varts{dir_i}.dt) - varts{dir_i}.dt(1)) < 1e-15
-            dt(dir_i) = varts{dir_i}.dt(1);
-        end
-    end
-    if mean(dt) ~= dt(1)
-        dt = nan(1:length(dirs));
     end
 
     %%%
@@ -244,35 +290,62 @@ else
         style   = styles{style_i};
 
         % Calculate extra fields.
-        v = varts{dir_i};
-        tmp_dt = dt(dir_i);
-        tmp_ts = v.ts;
+        v      = varts{dir_i};
+        ds     = v.dir_starts;
+        dt     = v.dt;
+        ts     = v.ts;
         speed  = sqrt(sum(v.u(:, :, :) .* v.u(:, :, :), 3));
         mach   = sqrt(sum(v.u(:, :, :) .* v.u(:, :, :), 3) ./ (gamma*R*v.T(:, :)));
         rho    = v.p(:,:,:) ./ (R*v.T(:, :));
         dynp   = 0.5 * rho .* speed.^2;
         totp   = v.p(:,:) + dynp;
+        
+        if DO_PLOT_TIME
+            % Convert time steps to physical times, skipping NaN values,
+            % which indicate that some time steps were skipped during load.
+            time = nan(length(ts),1);
+            n_files = length(ds);
+            for file_i = 1:n_files
+                start_i = ds(file_i);
+                if file_i < n_files
+                    end_i = ds(file_i + 1) - 1;
+                else
+                    end_i = length(ts);
+                end
+                if isnan(ts(start_i))
+                    % Skip this index so it remains a NaN.
+                    start_i = start_i + 1;
+                end
+                current_time = 0;
+                if start_i > 1
+                    current_time = time(start_i - 1);
+                end
+                time(start_i:end_i) = current_time + dt(file_i)*(1:(1+end_i-start_i));
+            end
+        else
+            time = ts;
+        end
 
         %%%
         % Plot time histories.
         %%%
 
-%         Plot_Varts_Data(tmp_dt, tmp_ts, v.u(:,:,1), 'u1', settings, name, probeIDs, style);
-%         Plot_Varts_Data(tmp_dt, tmp_ts, v.u(:,:,2), 'u2', settings, name, probeIDs, style);
-%         Plot_Varts_Data(tmp_dt, tmp_ts, v.u(:,:,3), 'u3', settings, name, probeIDs, style);
-%         Plot_Varts_Data(tmp_dt, tmp_ts, v.T,         'T', settings, name, probeIDs, style);
-        Plot_Varts_Data(tmp_dt, tmp_ts, speed,    'umag', settings, name, probeIDs, style);
-%         Plot_Varts_Data(tmp_dt, tmp_ts, mach,        'M', settings, name, probeIDs, style);
-%         Plot_Varts_Data(tmp_dt, tmp_ts, rho,       'rho', settings, name, probeIDs, style);
-%         Plot_Varts_Data(tmp_dt, tmp_ts, v.p,         'p', settings, name, probeIDs, style);
-%         Plot_Varts_Data(tmp_dt, tmp_ts, dynp,     'dynp', settings, name, probeIDs, style);
-%         Plot_Varts_Data(tmp_dt, tmp_ts, totp,     'totp', settings, name, probeIDs, style);
+%         Plot_Varts_Data(dt, time, v.u(:,:,1), 'u1', settings, name, probeIDs, style, DO_PLOT_TIME);
+%         Plot_Varts_Data(dt, time, v.u(:,:,2), 'u2', settings, name, probeIDs, style, DO_PLOT_TIME);
+%         Plot_Varts_Data(dt, time, v.u(:,:,3), 'u3', settings, name, probeIDs, style, DO_PLOT_TIME);
+%         Plot_Varts_Data(dt, time, v.T,         'T', settings, name, probeIDs, style, DO_PLOT_TIME);
+        Plot_Varts_Data(dt, time, speed,    'umag', settings, name, probeIDs, style, DO_PLOT_TIME);
+%         Plot_Varts_Data(dt, time, mach,        'M', settings, name, probeIDs, style, DO_PLOT_TIME);
+%         Plot_Varts_Data(dt, time, rho,       'rho', settings, name, probeIDs, style, DO_PLOT_TIME);
+%         Plot_Varts_Data(dt, time, v.p,         'p', settings, name, probeIDs, style, DO_PLOT_TIME);
+%         Plot_Varts_Data(dt, time, dynp,     'dynp', settings, name, probeIDs, style, DO_PLOT_TIME);
+%         Plot_Varts_Data(dt, time, totp,     'totp', settings, name, probeIDs, style, DO_PLOT_TIME);
         
         % Plot min and max of experiment that we're trying to achieve.
         target_min = 119;
         target_max = 247;
-        Plot_Varts_Data(1, [min(tmp_ts),max(tmp_ts)], target_min*[1,1], 'umag', {}, 'Target Min', 267, '--');
-        Plot_Varts_Data(1, [min(tmp_ts),max(tmp_ts)], target_max*[1,1], 'umag', {}, 'Target Max', 267, '--');
+%         Plot_Varts_Data(1, domain, target_min*[1,1], 'umag', {}, 'Target Min', 267, '--', DO_PLOT_TIME);
+%         Plot_Varts_Data(1, domain, target_max*[1,1], 'umag', {}, 'Target Max', 267, '--', DO_PLOT_TIME);
 
         %%%
         % Plot Fourier transforms.
@@ -318,7 +391,7 @@ exp_names = {};
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Phase-average and offset settings. %
+% Phase-average and repeat settings. %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 avg_settings_exp = {};
 DO_PHASE_AVG_EXP = true;
@@ -398,7 +471,7 @@ else
         probeIDs = nan;
         style = '-';
         
-        Plot_Varts_Data(exp_dt, exp_ts, exp_umag, 'umag', settings, name, probeIDs, style);
+        Plot_Varts_Data(exp_dt, exp_ts, exp_umag, 'umag', settings, name, probeIDs, style, DO_PLOT_TIME);
     
         %%%
         % Plot Fourier transforms.
