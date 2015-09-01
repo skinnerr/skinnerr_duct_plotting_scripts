@@ -89,7 +89,7 @@ dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par-waggingjet-fullUBmesh-Coarse2/Run-DDES-Wag-300Hz-ExpMatch150803-LowBlowOff'; dir_names{end+1} = 'S14.4.2 A0-Wag-Fine 300Hz';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par-waggingjet-fullUBmesh-Coarse4/Run-DDES-Wag-300Hz-LowBlowOff';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par-waggingjet-fullUBmesh-Coarse4/Run-DDES-Wag-300Hz-ExpMatch150803-LowBlowOff'; dir_names{end+1} = 'S14.4.2 A0-Wag-Coarse 300Hz';
-dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par-waggingjet-fullUBmesh-Coarse2-fixedBL/Run-DDES-Wag-100Hz-ExpMatch150803-LowBlowOff'; dir_names{end+1} = 'S14.4.2 A0-Wag-Fine 100Hz';
+% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par-waggingjet-fullUBmesh-Coarse2-fixedBL/Run-DDES-Wag-100Hz-ExpMatch150803-LowBlowOff'; dir_names{end+1} = 'S14.4.2 A0-Wag-Fine 100Hz';
 % 
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-RANS-Start2';
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-Base-KJ';
@@ -144,9 +144,9 @@ avg_settings_cfd{end+1} = s;
 % Offset settings. %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 offsets_cfd = {};
-DO_OFFSET_CFD = false;
+DO_OFFSET_CFD = true;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-offsets_cfd{end+1} = 325500;
+offsets_cfd{end+1} = 337100;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -220,8 +220,7 @@ else
     for dir_i = 1:length(dirs)
 
         [dir_starts, dt, ts, xyz, p, u, T, nu] = ...
-            Load_Varts_Directory(dirs{dir_i}, ...
-                                 DO_OFFSET_CFD, offsets_cfd{dir_i});
+            Load_Varts_Directory(dirs{dir_i}, DO_OFFSET_CFD, offsets_cfd{dir_i});
 
         % Retain only requested probe points.
         p  =  p(probeIDs,:);
@@ -233,8 +232,7 @@ else
         if DO_OFFSET_CFD
             ts_offset = offsets_cfd{dir_i};
             if ts(end) < ts_offset
-                error('Offset is greater than maximum time step in %s', ...
-                      dirs{dir_i});
+                error('Offset is greater than maximum time step in %s', dirs{dir_i});
             else
                 % Deal with cropping; need to modify a few data structures.
                 noncropped_dirs_i = (ts(dir_starts) - ts_offset) > 0;
@@ -250,8 +248,7 @@ else
                 end
                 dir_starts = dir_starts(noncropped_dirs_i);
                 dir_starts = dir_starts + 1 - dir_starts(1);
-                dir_starts(2:end) = dir_starts(2:end) - ...
-                             ts_chopped_in_first_cropped_i;
+                dir_starts(2:end) = dir_starts(2:end) - ts_chopped_in_first_cropped_i;
                 dt = dt(noncropped_dirs_i);
                 ts = ts - ts_offset;
                 noncropped_ts_i = ts > 0;
@@ -348,8 +345,9 @@ else
         % Plot min and max of experiment that we're trying to achieve.
         target_min = 119;
         target_max = 247;
-%         Plot_Varts_Data(1, domain, target_min*[1,1], 'umag', {}, 'Target Min', 267, '--', DO_PLOT_TIME);
-%         Plot_Varts_Data(1, domain, target_max*[1,1], 'umag', {}, 'Target Max', 267, '--', DO_PLOT_TIME);
+        domain = [min(time), max(time)];
+        Plot_Varts_Data(1, domain, target_min*[1,1], 'umag', {}, 'Target Min', 267, '--', DO_PLOT_TIME);
+        Plot_Varts_Data(1, domain, target_max*[1,1], 'umag', {}, 'Target Max', 267, '--', DO_PLOT_TIME);
 
         %%%
         % Plot Fourier transforms.

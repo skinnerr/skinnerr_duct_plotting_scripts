@@ -36,10 +36,12 @@ function [ dir_starts, dt, ts, xyz, p, u, T, nu ] = ...
         file_i_keep = [];
         for i = 1:(length(files)-1)
             tokens = strsplit(files(i+1).name,'.');
-            next_varts_ts = str2double(tokens(2));
-            if next_varts_ts < offset
-                disp(['Skipping ', files(i).name, ...
-                      ' because its data is before the offset.']);
+            next_varts_ts = str2double(tokens(2)) + 1; % This +1 is important, because the
+                                                       %  varts.x.dat file begins with the
+                                                       %  timestep x+1, rather than x.
+            if next_varts_ts <= offset
+                disp(['Skipping ', files(i).name, ' because data is before the offset.']);
+            else
                 file_i_keep = [file_i_keep, i];
             end
         end
@@ -106,8 +108,7 @@ function [ dir_starts, dt, ts, xyz, p, u, T, nu ] = ...
                 end
                 % Insert NaNs if we are missing some time steps.
                 if insert_nans && (ts(end) + 1 ~= tmp_ts(1))
-                    disp(['Some time steps skipped before file ', ...
-                          data_path]);
+                    disp(['Some time steps skipped before file ', data_path]);
                     ts = cat(1, ts, nan);
                     p  = cat(2,  p, NaN(size( p,1), 1));
                     u  = cat(2,  u, NaN(size( u,1), 1, 3));
