@@ -89,7 +89,7 @@ dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par-waggingjet-fullUBmesh-Coarse2/Run-DDES-Wag-300Hz-ExpMatch150803-LowBlowOff'; dir_names{end+1} = 'S14.4.2 A0-Wag-Fine 300Hz';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par-waggingjet-fullUBmesh-Coarse4/Run-DDES-Wag-300Hz-LowBlowOff';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par-waggingjet-fullUBmesh-Coarse4/Run-DDES-Wag-300Hz-ExpMatch150803-LowBlowOff'; dir_names{end+1} = 'S14.4.2 A0-Wag-Coarse 300Hz';
-% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par-waggingjet-fullUBmesh-Coarse2-fixedBL/Run-DDES-Wag-100Hz-ExpMatch150803-LowBlowOff'; dir_names{end+1} = 'S14.4.2 A0-Wag-Fine 100Hz';
+dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par-waggingjet-fullUBmesh-Coarse2-fixedBL/Run-DDES-Wag-100Hz-ExpMatch150803-LowBlowOff'; dir_names{end+1} = 'S14.4.2 A0-Wag-Fine 100Hz';
 % 
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-RANS-Start2';
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-Base-KJ';
@@ -168,8 +168,8 @@ DO_PLOT_FOURIER_CFD = false;
 % Probe point selection. %
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 % probeIDs = [1, 261, 264, 267, 270, 273];
-% probeIDs = [1, 261, 264, 267];
-probeIDs = [267];
+probeIDs = [1, 261, 264, 267];
+% probeIDs = [267];
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -198,8 +198,12 @@ else
     end
     
     % Offsets.
-    if DO_OFFSET_CFD && (length(offsets_cfd) ~= length(dirs))
-        error('Offsets are not specified for all CFD directories requested.');
+    if DO_OFFSET_CFD
+        if (length(offsets_cfd) ~= length(dirs))
+            error('Offsets are not specified for all CFD directories requested.');
+        end
+    else
+        offsets_cfd = cell(1,length(dirs));
     end
 
     % Probe points.
