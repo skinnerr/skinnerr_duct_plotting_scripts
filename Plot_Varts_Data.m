@@ -128,6 +128,9 @@ function [ output_args ] = Plot_Varts_Data( dt, ts, field, field_name, avg_setti
 	ylabel(y_labels{field_index});
     xlabel(x_label);
     
+    hleg = legend('show');
+    set(hleg, 'Location', 'southwest');
+    
     % Reset color plotting order for the next time the plot is drawn to.
     set(hax1,'ColorOrderIndex',1);
     

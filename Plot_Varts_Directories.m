@@ -53,7 +53,7 @@ dir_names = {};
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-150Hz-ExpBlowHalfNumSlits-LowBlowOff';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-150Hz-ExpBlowHalfNumSlits-LowBlowOff-UR';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-300Hz-ExpMatch150803-LBOff';
-dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803-LBOff'; dir_names{end+1} = 'S14.4.2 100Hz Trap ExpMatch150803';
+dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803-LBOff/'; dir_names{end+1} = 'S14.4.2 100Hz Trap ExpMatch150803';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-Steady-LBOff';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-Baseline';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-Baseline25k-recent';
@@ -110,6 +110,17 @@ dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Probe point selection. %
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% probeIDs = [1, 261, 264, 267, 270, 273];
+% probeIDs = [1, 261, 264, 267];
+% probeIDs = [267];
+% probeIDs = [302, 303, 267, 304, 305]; % Five span-wise UB throat probes (horizontal).
+probeIDs = [306, 307, 267, 308, 309]; % Five span-wise UB throat probes (vertical).
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Phase-average settings. %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -144,9 +155,9 @@ avg_settings_cfd{end+1} = s;
 % Offset settings. %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 offsets_cfd = {};
-DO_OFFSET_CFD = true;
+DO_OFFSET_CFD = false;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-offsets_cfd{end+1} = 337100;
+offsets_cfd{end+1} = 354200;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -162,15 +173,6 @@ DO_PLOT_TIME = false;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 DO_PLOT_FOURIER_CFD = false;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Probe point selection. %
-%%%%%%%%%%%%%%%%%%%%%%%%%%
-% probeIDs = [1, 261, 264, 267, 270, 273];
-probeIDs = [1, 261, 264, 267];
-% probeIDs = [267];
-%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%
@@ -331,16 +333,16 @@ else
         % Plot time histories.
         %%%
 
-%         Plot_Varts_Data(dt, time, v.u(:,:,1), 'u1', settings, name, probeIDs, style, DO_PLOT_TIME);
-%         Plot_Varts_Data(dt, time, v.u(:,:,2), 'u2', settings, name, probeIDs, style, DO_PLOT_TIME);
-%         Plot_Varts_Data(dt, time, v.u(:,:,3), 'u3', settings, name, probeIDs, style, DO_PLOT_TIME);
-%         Plot_Varts_Data(dt, time, v.T,         'T', settings, name, probeIDs, style, DO_PLOT_TIME);
+        Plot_Varts_Data(dt, time, v.u(:,:,1), 'u1', settings, name, probeIDs, style, DO_PLOT_TIME);
+        Plot_Varts_Data(dt, time, v.u(:,:,2), 'u2', settings, name, probeIDs, style, DO_PLOT_TIME);
+        Plot_Varts_Data(dt, time, v.u(:,:,3), 'u3', settings, name, probeIDs, style, DO_PLOT_TIME);
+        Plot_Varts_Data(dt, time, v.T,         'T', settings, name, probeIDs, style, DO_PLOT_TIME);
         Plot_Varts_Data(dt, time, speed,    'umag', settings, name, probeIDs, style, DO_PLOT_TIME);
-%         Plot_Varts_Data(dt, time, mach,        'M', settings, name, probeIDs, style, DO_PLOT_TIME);
-%         Plot_Varts_Data(dt, time, rho,       'rho', settings, name, probeIDs, style, DO_PLOT_TIME);
-%         Plot_Varts_Data(dt, time, v.p,         'p', settings, name, probeIDs, style, DO_PLOT_TIME);
-%         Plot_Varts_Data(dt, time, dynp,     'dynp', settings, name, probeIDs, style, DO_PLOT_TIME);
-%         Plot_Varts_Data(dt, time, totp,     'totp', settings, name, probeIDs, style, DO_PLOT_TIME);
+        Plot_Varts_Data(dt, time, mach,        'M', settings, name, probeIDs, style, DO_PLOT_TIME);
+        Plot_Varts_Data(dt, time, rho,       'rho', settings, name, probeIDs, style, DO_PLOT_TIME);
+        Plot_Varts_Data(dt, time, v.p,         'p', settings, name, probeIDs, style, DO_PLOT_TIME);
+        Plot_Varts_Data(dt, time, dynp,     'dynp', settings, name, probeIDs, style, DO_PLOT_TIME);
+        Plot_Varts_Data(dt, time, totp,     'totp', settings, name, probeIDs, style, DO_PLOT_TIME);
         
         % Plot min and max of experiment that we're trying to achieve.
         target_min = 119;

@@ -94,17 +94,18 @@ function [ dir_starts, dt, ts, xyz, p, u, T, nu ] = ...
             inserted_nans = false;
 
             if i > 1
-                % Warn if probe locations are not consistent.
-                if any(size(tmp_xyz) ~= size(xyz))
-                    disp(['Warning: Probe locations change in file ', ...
-                          data_path, ' and something WILL break.']);
-                end
                 % Warn if time step size is not consistent.
                 if tmp_dt ~= dt(end)
-                    disp(['Warning: Time step size change in file ', ...
-                          data_path, ...
+                    disp(['Warning: Time step size change', ... 
                           ' from ', num2str(dt(end)), ...
-                          ' to ',   num2str(tmp_dt)]);
+                          ' to ',   num2str(tmp_dt), ...
+                          ' in file ', data_path]);
+                end
+                % Warn if probe locations are not consistent, and pad with NaNs.
+                n_xyz_t = size(tmp_xyz, 1);
+                n_xyz   = size(xyz, 1);
+                if n_xyz_t ~= n_xyz
+                    disp(['Warning: Probe locations change in file ', data_path]);
                 end
                 % Insert NaNs if we are missing some time steps.
                 if insert_nans && (ts(end) + 1 ~= tmp_ts(1))
