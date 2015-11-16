@@ -1,5 +1,6 @@
-function [ output_args ] = Plot_Varts_Data( dt, ts, field, field_name, avg_settings, ...
-                                            name, probeIDs, style, label_seconds )
+function [ output_args ] = Plot_Varts_Data( dt, ts, xmin, xmax, field, field_name, ...
+                                            avg_settings, name, probeIDs, style, ...
+                                            label_seconds )
 %%%
 %
 % Plots varts data.
@@ -66,7 +67,7 @@ function [ output_args ] = Plot_Varts_Data( dt, ts, field, field_name, avg_setti
     %%%
     
     if do_phase_avg
-        if mean(dt) ~= dt(1)
+        if abs(mean(dt) - dt(1)) > eps
             error('Phase averaging requires constant time step size.');
         end
         avg_field = [];
@@ -102,17 +103,15 @@ function [ output_args ] = Plot_Varts_Data( dt, ts, field, field_name, avg_setti
         plot(time, field, 'LineStyle', style, 'DisplayName', display_name);
     else
         for probe_i = 1:size(field,1)
-            display_name = [name, ' ID:', num2str(probeIDs(probe_i)), display_append];
+            display_name = [name, ' ID:', num2str(probeIDs(probe_i)), ' ', display_append];
             plot(time, field(probe_i,:), 'LineStyle', style, 'DisplayName', display_name);
         end
     end
-    xlim([min(time),max(time)]);
+%     xlim([xmin,xmax]);
     
     %%%
     % Add annotations: legend and labels.
     %%%
-    
-    legend();
     
     y_labels = {'x-Velocity (m/s)', ...
                 'y-Velocity (m/s)', ...
@@ -129,7 +128,7 @@ function [ output_args ] = Plot_Varts_Data( dt, ts, field, field_name, avg_setti
     xlabel(x_label);
     
     hleg = legend('show');
-    set(hleg, 'Location', 'southwest');
+    set(hleg, 'Location', 'eastoutside');
     
     % Reset color plotting order for the next time the plot is drawn to.
     set(hax1,'ColorOrderIndex',1);

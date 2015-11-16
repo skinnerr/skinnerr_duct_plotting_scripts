@@ -10,16 +10,38 @@ Set_Default_Plot_Properties();
 % Initialize variables.
 %%%
 
+m2in = 39.3701;
+duct_max_y =  0.1121537;
+duct_min_y = -0.0333375;
+
 dirs = {};
+dir_names = {};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Directories containing plot data. %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-dirs{end+1} = 'TestDir1/AIP_Plot';
-dirs{end+1} = 'TestDir2/AIP_Plot';
-dirs{end+1} = '/home/ryan/Documents/CU_Boulder/Research/NGC/NGC_Ryan_Plotting_Scripts/TestDir3';
-dirs{end+1} = '/home/ryan/Documents/CU_Boulder/Research/NGC/NGC_Ryan_Plotting_Scripts/TestDir4';
+
+dirs{end+1} = 'series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-Baseline/ts19.7k-54.1k_CpPressureRecoveryPlots'; dir_names{end+1} = 'Baseline';
+
+% dirs{end+1} = 'series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803-LBOff-P101.3k/ts426.1k-460.1k_CpPressureRecoveryPlots'; dir_names{end+1} = 'mdot = 0.90%';
+% dirs{end+1} = 'series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803-LBOff/ts363.6k-375.6k_CpPressureRecoveryPlots'; dir_names{end+1} = 'mdot = 1.18%';
+% dirs{end+1} = 'series14.4.2/meshing-Coarse2-Par/Run-DDES-Steady-mdot1.25/77a_Data'; dir_names{end+1} = 'DDES 1.12% (77a)';
+% dirs{end+1} = 'series14.4.2/meshing-Coarse2-Par/Run-DDES-Steady-mdot1.5/78a_Data'; dir_names{end+1} = 'DDES 1.57% (78a)';
+
+dirs{end+1} = 'series14.5.1/A0/A0-Run-RANS-Steady-mdot1.25/ts105k-115k_data'; dir_names{end+1} = 'RANS 1.24% (73a)';
+% dirs{end+1} = 'series14.5.1/A0/A0-Run-RANS-Steady-mdot1.5/ts105k-119k_data'; dir_names{end+1} = 'RANS 1.83% (72b)';
+dirs{end+1} = 'series14.5.1/A0/A0-Run-DDES-Steady-mdot1.25/79a_Data'; dir_names{end+1} = 'DDES 1.22% (79a)';
+% dirs{end+1} = 'series14.5.1/A0/A0-Run-DDES-Steady-mdot1.5/80a_Data'; dir_names{end+1} = 'DDES 1.80% (80a)';
+% dirs{end+1} = 'series14.5.1/A0/A0-Run-RANS-Steady-mdot1.25-LB1.72/81a_Data'; dir_names{end+1} = 'RANS 1.26% / 1.95% (81a)';
+% dirs{end+1} = 'series14.5.1/A0/A0-Run-RANS-Steady-mdot1.5-LB1.72/82a_Data'; dir_names{end+1} = 'RANS 2.32% / 1.89% (82a)';
+% dirs{end+1} = 'series14.5.1/A0/A0-Run-DDES-Steady-mdot1.25-LB1.72/83a_Data'; dir_names{end+1} = 'RANS 1.27% / 1.90% (83a)';
+% dirs{end+1} = 'series14.5.1/A0/A0-Run-DDES-Steady-mdot1.5-LB1.72/84a_Data'; dir_names{end+1} = 'RANS 2.33% / 1.91% (84a)';
+
+directory = 'AIP_Plot';
+for i = 1:length(dirs)
+    dirs{i} = ['/projects/ngc/probePoints/', dirs{i}, '/', directory, '/'];
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -27,14 +49,19 @@ dirs{end+1} = '/home/ryan/Documents/CU_Boulder/Research/NGC/NGC_Ryan_Plotting_Sc
 % Sanitize directory inputs.
 %%%
 
-dirs = Sanitize_Paths(dirs);
+dirs = Slash_Terminate_Paths(dirs);
+
+% Directory names.
+if length(dirs) ~= length(dir_names)
+    error('Number of CFD paths is not equal to number of named directories.');
+end
 
 %%%
 % Load data from directories.
 %%%
 
-%   Note: Data from a specific line is indexed by dir_data{dir_index}(file_index).field
-%   Note: Matlab allows you to say str='my_field' and access it by my_struct.(my_field)
+% Note: Data from a specific line is indexed by dir_data{dir_index}(file_index).field
+% Note: Matlab allows you to say str='my_field' and access it by my_struct.(my_field)
 
 dir_data = cell(length(dirs),1);
 for i = 1:length(dirs)
@@ -46,8 +73,8 @@ sort_field = 'y';
 for dir_i = 1:length(dir_data)
     for file_i = 1:length(dir_data{dir_i})
         % Sort sort_field data, and save the sort order.
-        [dir_data{dir_i}(file_i).(sort_field), ...
-                                 sort_order] = sort(dir_data{dir_i}(file_i).y);
+        [dir_data{dir_i}(file_i).(sort_field), sort_order] = ...
+            sort(dir_data{dir_i}(file_i).(sort_field));
         % Sort all other field data, using saved sort order.
         fields = fieldnames(dir_data{dir_i}(file_i));
         for i = 1:length(fields)
@@ -61,9 +88,7 @@ for dir_i = 1:length(dir_data)
     end
 end
 
-% Create new field for non-dimensionalized ertical position y/h.
-duct_max_y =  0.1121537;
-duct_min_y = -0.0333375;
+% Create new field for non-dimensionalized vertical position y/h.
 assert(duct_max_y > duct_min_y, 'Duct min/max are out of order.');
 for dir_i = 1:length(dir_data)
     for file_i = 1:length(dir_data{dir_i})
@@ -108,7 +133,7 @@ for dir_i = 1:length(dir_data);
     for file_i = 1:length(dir_data{dir_i})
         
         % If the slice is centered on z=0...
-        if abs(z_avg{dir_i}(file_i)) < 1e-15
+        if abs(z_avg{dir_i}(file_i)) < 10*eps
             % Set the slice center to zero identically.
             z_avg{dir_i}(file_i) = 0;
             % And color its line black.
@@ -121,15 +146,9 @@ for dir_i = 1:length(dir_data);
         style_str = styles{1+mod(dir_i-1,length(styles))};
         
         % Determine name to appear on legend.
-        m2in = 39.3701;
         z_avg_inches = m2in * z_avg{dir_i}(file_i);
-        dir_str = strsplit(dirs{dir_i},'/');
-        if strcmp(dir_str{end-1},'AIP_Plot')
-            dir_str = dir_str{end-2};
-        else
-            dir_str = dir_str{end-1};
-        end
-        display_name = sprintf('%s  %.1f in',dir_str,z_avg_inches);
+        dir_str = dir_names{dir_i};
+        display_name = sprintf('%s (%.1f in)', dir_str, z_avg_inches);
         
         % Plot in order of z-coordinate.
         plot(dir_data{dir_i}(file_i).pr, ...
@@ -145,7 +164,7 @@ end
 xlabel('Pressure Recovery');
 ylabel('y/h');
 hleg = legend('show');
-set(hleg,'Location','west');
+set(hleg,'Location','southwest');
 hold off;
 
 

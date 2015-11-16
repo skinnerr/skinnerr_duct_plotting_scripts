@@ -14,12 +14,15 @@ Set_Default_Plot_Properties();
 % Initialize variables.
 %%%
 
+min_time = nan;
+max_time = nan;
+
 % Physical constants.
 gamma = 1.4;
 R     = 288.294;
 
 % Line styles to cycle through for each directory.
-styles = {'-','--','-.',':'};
+styles = {'-','-',':','-.','--'};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Directories containing CFD data. %
@@ -53,10 +56,22 @@ dir_names = {};
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-150Hz-ExpBlowHalfNumSlits-LowBlowOff';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-150Hz-ExpBlowHalfNumSlits-LowBlowOff-UR';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-300Hz-ExpMatch150803-LBOff';
-dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803-LBOff/'; dir_names{end+1} = 'S14.4.2 100Hz Trap ExpMatch150803';
+% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803-LBOff/'; dir_names{end+1} = 'S14.4.2 A0-Plug 100Hz';
+% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803-LBOff-P110k/'; dir_names{end+1} = 'S14.4.2 A0-Plug 100Hz P110k';
+% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803-LBOff-P100k/'; dir_names{end+1} = 'S14.4.2 A0-Plug 100Hz P100k';
+% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803-LBOff-P101.3k/'; dir_names{end+1} = 'S14.4.2 A0-Plug 100Hz P101.3k';
+% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-Steady-LBOff-MassFlowMatch/'; dir_names{end+1} = 'S14.4.2 A0-Plug Steady MassFlowMatch';
+% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-Steady-mdot1.25/'; dir_names{end+1} = 'x/L = 0, mdot 1.25%';
+% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-Steady-mdot1.5/'; dir_names{end+1} = 'x/L = 0, mdot 1.5%';
+% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-RANS-Steady-mdot1.25/'; dir_names{end+1} = 'x/L = 0, mdot 1.25%';
+% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-RANS-Steady-mdot1.5/'; dir_names{end+1} = 'x/L = 0, mdot 1.5%';
+% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-RANS-Steady-mdot1.5-try2/'; dir_names{end+1} = 'x/L = 0, mdot 1.5% (try2)';
+% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-RANS-Steady-mdot2.0/'; dir_names{end+1} = 'x/L = 0, mdot 2.0%';
+% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-RANS-Steady-mdot2.5/'; dir_names{end+1} = 'x/L = 0, mdot 2.5%';
+% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-RANS-Steady-mdot3.0/'; dir_names{end+1} = 'x/L = 0, mdot 3.0%';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-Steady-LBOff';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-Baseline';
-% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-Baseline25k-recent';
+% dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-Baseline25k-recent'; dir_names{end+1} = 'S14.4.2 A1-Iso Baseline';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-300Hz-prof2-LowBlow1.72';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-300Hz-prof2-LowBlow0.86';
 % dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-300Hz-prof2-LowBlowOff';
@@ -93,8 +108,12 @@ dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803
 % 
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-RANS-Start2';
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-Base-KJ';
-% dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-Steady-LBOff';
+% dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-Steady-LBOff'; dir_names{end+1} = 'x/L = 0.25, mdot 1.25% (DDES)';
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-Steady-LBOff-UR';
+% dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-Steady-mdot1.25'; dir_names{end+1} = 'x/L = 0.25, mdot 1.25%';
+% dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-Steady-mdot1.5'; dir_names{end+1} = 'x/L = 0.25, mdot 1.8%';
+% dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-Steady-mdot1.25-LB1.72'; dir_names{end+1} = 'x/L = 0.25, mdot 1.25%';
+dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-Steady-mdot1.5-LB1.72'; dir_names{end+1} = 'x/L = 0.25, mdot 1.8%';
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-100Hz-LB0.86-KJ';
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-100Hz-LB1.72-KJ';
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-100Hz-LB1.72-KJ-UR';
@@ -102,6 +121,13 @@ dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-100Hz-KJ';
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-RANS-100Hz-LB1.72';
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-RANS-100Hz-LB1.72-UR';
+% dirs{end+1} = '../series14.5.1/A0/A0-Run-RANS-Steady-mdot1.25'; dir_names{end+1} = 'x/L = 0.25, mdot 1.25%';
+% dirs{end+1} = '../series14.5.1/A0/A0-Run-RANS-Steady-mdot1.5'; dir_names{end+1} = 'x/L = 0.25, mdot 1.8%';
+% dirs{end+1} = '../series14.5.1/A0/A0-Run-RANS-Steady-mdot2.0'; dir_names{end+1} = 'x/L = 0.25, mdot 2.0%';
+% dirs{end+1} = '../series14.5.1/A0/A0-Run-RANS-Steady-mdot2.5'; dir_names{end+1} = 'x/L = 0.25, mdot 2.5%';
+% dirs{end+1} = '../series14.5.1/A0/A0-Run-RANS-Steady-mdot3.0'; dir_names{end+1} = 'x/L = 0.25, mdot 3.0%';
+% dirs{end+1} = '../series14.5.1/A0/A0-Run-RANS-Steady-mdot1.25-LB1.72'; dir_names{end+1} = 'x/L = 0.25, mdot 1.25%';
+% dirs{end+1} = '../series14.5.1/A0/A0-Run-RANS-Steady-mdot1.5-LB1.72'; dir_names{end+1} = 'x/L = 0.25, mdot 1.8%';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % dirs{end+1} = 'varts_1'; dir_names{end+1} = 'varts_1';
 % dirs{end+1} = 'varts_2'; dir_names{end+1} = 'varts_2';
@@ -114,10 +140,16 @@ dirs{end+1} = '../series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803
 % Probe point selection. %
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 % probeIDs = [1, 261, 264, 267, 270, 273];
-% probeIDs = [1, 261, 264, 267];
+% probeIDs = [11, 10, 9, 8];
+% probeIDs = [1, 261, 264, 267]; % Upper blower
+% probeIDs = [1, 291, 294, 297, 300]; % Lower blower
+% probeIDs = [1, 261, 264, 267, 270, 291, 294, 297, 300]; % Upper AND Lower blowers
+% probeIDs = [38:42, 53:57]; % AIP z = -2 in
+probeIDs = [43:47, 58:62]; % AIP z =  0 in
+% probeIDs = [48:52, 63:67]; % AIP z = +2 in
 % probeIDs = [267];
 % probeIDs = [302, 303, 267, 304, 305]; % Five span-wise UB throat probes (horizontal).
-probeIDs = [306, 307, 267, 308, 309]; % Five span-wise UB throat probes (vertical).
+% probeIDs = [306, 307, 267, 308, 309]; % Five span-wise UB throat probes (vertical).
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -131,23 +163,43 @@ DO_PHASE_AVG_CFD = false;
 % s.start_ts = 62000;
 % s.end_ts   = 68800;
 % s.freq_Hz  = 300;
-% avg_settings{end+1} = s;
+% avg_settings_cfd{end+1} = s;
+
 % % Wag mesh coarse2 expmatch
 % s.start_ts = 18135;
 % s.end_ts   = 42500;
 % s.freq_Hz  = 300;
-% avg_settings{end+1} = s;
+% avg_settings_cfd{end+1} = s;
+
 % % Wag mesh coarse4 expmatch
 % s.start_ts = 13086;
 % s.end_ts   = 35100;
 % s.freq_Hz  = 300;
-% avg_settings{end+1} = s;
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Test directory
-s.start_ts = 61000;
-s.end_ts   = 65000;
-s.freq_Hz  = 300;
+% avg_settings_cfd{end+1} = s;
+
+% % S14.4.2 A0 ExpMatch150803 100Hz
+% s.start_ts = 363675;
+% s.end_ts   = 375600;
+% s.freq_Hz  = 100;
+% avg_settings_cfd{end+1} = s;
+
+% S14.4.2 A0 ExpMatch150803 100Hz - mdot 1.18%, ts 426.1k-460.1k
+s.start_ts = 1573;
+s.end_ts   = 32000;
+s.freq_Hz  = 100;
 avg_settings_cfd{end+1} = s;
+
+% % S14.4.2 A0 meshing-Coarse2-Par-waggingjet-fullUBmesh-Coarse2-fixedBL ExpMatch150803 100Hz-Wag
+% s.start_ts = 38261;
+% s.end_ts   = 55000;
+% s.freq_Hz  = 100;
+% avg_settings_cfd{end+1} = s;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % Test directory
+% s.start_ts = 61000;
+% s.end_ts   = 65000;
+% s.freq_Hz  = 300;
+% avg_settings_cfd{end+1} = s;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -157,7 +209,8 @@ avg_settings_cfd{end+1} = s;
 offsets_cfd = {};
 DO_OFFSET_CFD = false;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-offsets_cfd{end+1} = 354200;
+offsets_cfd{end+1} = 390000;
+offsets_cfd{end+1} = 426101;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -328,28 +381,36 @@ else
         else
             time = ts;
         end
+        
+        if min(time) < min_time || isnan(min_time)
+            min_time = min(time);
+        end
+        if max(time) > max_time || isnan(max_time)
+            max_time = max(time);
+        end
 
         %%%
         % Plot time histories.
         %%%
 
-        Plot_Varts_Data(dt, time, v.u(:,:,1), 'u1', settings, name, probeIDs, style, DO_PLOT_TIME);
-        Plot_Varts_Data(dt, time, v.u(:,:,2), 'u2', settings, name, probeIDs, style, DO_PLOT_TIME);
-        Plot_Varts_Data(dt, time, v.u(:,:,3), 'u3', settings, name, probeIDs, style, DO_PLOT_TIME);
-        Plot_Varts_Data(dt, time, v.T,         'T', settings, name, probeIDs, style, DO_PLOT_TIME);
-        Plot_Varts_Data(dt, time, speed,    'umag', settings, name, probeIDs, style, DO_PLOT_TIME);
-        Plot_Varts_Data(dt, time, mach,        'M', settings, name, probeIDs, style, DO_PLOT_TIME);
-        Plot_Varts_Data(dt, time, rho,       'rho', settings, name, probeIDs, style, DO_PLOT_TIME);
-        Plot_Varts_Data(dt, time, v.p,         'p', settings, name, probeIDs, style, DO_PLOT_TIME);
-        Plot_Varts_Data(dt, time, dynp,     'dynp', settings, name, probeIDs, style, DO_PLOT_TIME);
-        Plot_Varts_Data(dt, time, totp,     'totp', settings, name, probeIDs, style, DO_PLOT_TIME);
+%         Plot_Varts_Data(dt, time, min_time, max_time, v.u(:,:,1), 'u1', settings, name, probeIDs, style, DO_PLOT_TIME);
+%         Plot_Varts_Data(dt, time, min_time, max_time, v.u(:,:,2), 'u2', settings, name, probeIDs, style, DO_PLOT_TIME);
+%         Plot_Varts_Data(dt, time, min_time, max_time, v.u(:,:,3), 'u3', settings, name, probeIDs, style, DO_PLOT_TIME);
+        Plot_Varts_Data(dt, time, min_time, max_time, v.T,         'T', settings, name, probeIDs, style, DO_PLOT_TIME);
+        Plot_Varts_Data(dt, time, min_time, max_time, speed,    'umag', settings, name, probeIDs, style, DO_PLOT_TIME);
+        Plot_Varts_Data(dt, time, min_time, max_time, mach,        'M', settings, name, probeIDs, style, DO_PLOT_TIME);
+        Plot_Varts_Data(dt, time, min_time, max_time, rho,       'rho', settings, name, probeIDs, style, DO_PLOT_TIME);
+        Plot_Varts_Data(dt, time, min_time, max_time, v.p,         'p', settings, name, probeIDs, style, DO_PLOT_TIME);
+        Plot_Varts_Data(dt, time, min_time, max_time, dynp,     'dynp', settings, name, probeIDs, style, DO_PLOT_TIME);
+        Plot_Varts_Data(dt, time, min_time, max_time, totp,     'totp', settings, name, probeIDs, style, DO_PLOT_TIME);
+%         mean(totp')'
         
         % Plot min and max of experiment that we're trying to achieve.
         target_min = 119;
         target_max = 247;
-        domain = [min(time), max(time)];
-        Plot_Varts_Data(1, domain, target_min*[1,1], 'umag', {}, 'Target Min', 267, '--', DO_PLOT_TIME);
-        Plot_Varts_Data(1, domain, target_max*[1,1], 'umag', {}, 'Target Max', 267, '--', DO_PLOT_TIME);
+        domain = [min_time, max_time];
+%         Plot_Varts_Data(1, domain, min_time, max_time, target_min*[1,1], 'umag', {}, 'Target Min', 267, '--', DO_PLOT_TIME);
+%         Plot_Varts_Data(1, domain, min_time, max_time, target_max*[1,1], 'umag', {}, 'Target Max', 267, '--', DO_PLOT_TIME);
 
         %%%
         % Plot Fourier transforms.
@@ -475,7 +536,14 @@ else
         probeIDs = nan;
         style = '-';
         
-        Plot_Varts_Data(exp_dt, exp_ts, exp_umag, 'umag', settings, name, probeIDs, style, DO_PLOT_TIME);
+        if min(exp_ts) < min_time
+            min_time = min(exp_ts);
+        end
+        if max(exp_ts) > max_time
+            max_time = max(exp_ts);
+        end
+        
+        Plot_Varts_Data(exp_dt, exp_ts, min_time, max_time, exp_umag, 'umag', settings, name, probeIDs, style, DO_PLOT_TIME);
     
         %%%
         % Plot Fourier transforms.
