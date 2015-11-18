@@ -26,6 +26,9 @@ dirs{end+1} = 'series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-Baseli
 
 % dirs{end+1} = 'series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803-LBOff-P101.3k/ts426.1k-460.1k_CpPressureRecoveryPlots'; dir_names{end+1} = 'mdot = 0.90%';
 % dirs{end+1} = 'series14.4.2/meshing-Coarse2-Par/Run-DDES-100Hz-ExpMatch150803-LBOff/ts363.6k-375.6k_CpPressureRecoveryPlots'; dir_names{end+1} = 'mdot = 1.18%';
+
+% dirs{end+1} = 'series14.4.2/meshing-Coarse2-Par/Run-RANS-Steady-mdot1.25/ts189k-193k_data/'; dir_names{end+1} = 'RANS 1.15% (74a)';
+% dirs{end+1} = 'series14.4.2/meshing-Coarse2-Par/Run-RANS-Steady-mdot1.5/ts191k-195k_data/'; dir_names{end+1} = 'RANS 1.55% (75a)';
 % dirs{end+1} = 'series14.4.2/meshing-Coarse2-Par/Run-DDES-Steady-mdot1.25/77a_Data'; dir_names{end+1} = 'DDES 1.12% (77a)';
 % dirs{end+1} = 'series14.4.2/meshing-Coarse2-Par/Run-DDES-Steady-mdot1.5/78a_Data'; dir_names{end+1} = 'DDES 1.57% (78a)';
 
@@ -35,11 +38,11 @@ dirs{end+1} = 'series14.4.2/meshing-Coarse2-Par/A1-Iso/16k-procs/Run-DDES-Baseli
 % dirs{end+1} = 'series14.5.1/A0/A0-Run-DDES-Steady-mdot1.5/80a_Data'; dir_names{end+1} = 'DDES 1.80% (80a)';
 % dirs{end+1} = 'series14.5.1/A0/A0-Run-RANS-Steady-mdot1.25-LB1.72/81a_Data'; dir_names{end+1} = 'RANS 1.26% / 1.95% (81a)';
 % dirs{end+1} = 'series14.5.1/A0/A0-Run-RANS-Steady-mdot1.5-LB1.72/82a_Data'; dir_names{end+1} = 'RANS 2.32% / 1.89% (82a)';
-% dirs{end+1} = 'series14.5.1/A0/A0-Run-DDES-Steady-mdot1.25-LB1.72/83a_Data'; dir_names{end+1} = 'RANS 1.27% / 1.90% (83a)';
-% dirs{end+1} = 'series14.5.1/A0/A0-Run-DDES-Steady-mdot1.5-LB1.72/84a_Data'; dir_names{end+1} = 'RANS 2.33% / 1.91% (84a)';
+dirs{end+1} = 'series14.5.1/A0/A0-Run-DDES-Steady-mdot1.25-LB1.72/83a_Data'; dir_names{end+1} = 'DDES 1.27% / 1.90% (83a)';
+dirs{end+1} = 'series14.5.1/A0/A0-Run-DDES-Steady-mdot1.5-LB1.72/84a_Data'; dir_names{end+1} = 'DDES 2.33% / 1.91% (84a)';
 
-% directory = 'dpdxPlot_Upper';
-directory = 'dpdxPlot_Lower';
+% directory = 'dpdxPlot_Upper'; custom_ylim = [-0.5, 0.8];
+directory = 'dpdxPlot_Lower'; custom_ylim = [-0.1, 0.7];
 
 for i = 1:length(dirs)
     dirs{i} = ['/projects/ngc/probePoints/', dirs{i}, '/', directory, '/'];
@@ -158,6 +161,7 @@ end
 xlabel('x/L');
 ylabel('Cp');
 xlim([0,1.1]);
+ylim(custom_ylim);
 hleg = legend('show');
 set(hleg,'Location','southeast');
 hold off;

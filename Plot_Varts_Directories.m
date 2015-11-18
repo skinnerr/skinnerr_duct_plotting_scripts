@@ -113,7 +113,7 @@ dir_names = {};
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-Steady-mdot1.25'; dir_names{end+1} = 'x/L = 0.25, mdot 1.25%';
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-Steady-mdot1.5'; dir_names{end+1} = 'x/L = 0.25, mdot 1.8%';
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-Steady-mdot1.25-LB1.72'; dir_names{end+1} = 'x/L = 0.25, mdot 1.25%';
-dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-Steady-mdot1.5-LB1.72'; dir_names{end+1} = 'x/L = 0.25, mdot 1.8%';
+% dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-Steady-mdot1.5-LB1.72'; dir_names{end+1} = 'x/L = 0.25, mdot 1.8%';
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-100Hz-LB0.86-KJ';
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-100Hz-LB1.72-KJ';
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-100Hz-LB1.72-KJ-UR';
@@ -127,7 +127,7 @@ dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-Steady-mdot1.5-LB1.72'; dir_names{
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-RANS-Steady-mdot2.5'; dir_names{end+1} = 'x/L = 0.25, mdot 2.5%';
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-RANS-Steady-mdot3.0'; dir_names{end+1} = 'x/L = 0.25, mdot 3.0%';
 % dirs{end+1} = '../series14.5.1/A0/A0-Run-RANS-Steady-mdot1.25-LB1.72'; dir_names{end+1} = 'x/L = 0.25, mdot 1.25%';
-% dirs{end+1} = '../series14.5.1/A0/A0-Run-RANS-Steady-mdot1.5-LB1.72'; dir_names{end+1} = 'x/L = 0.25, mdot 1.8%';
+dirs{end+1} = '../series14.5.1/A0/A0-Run-RANS-Steady-mdot1.5-LB1.72'; dir_names{end+1} = 'x/L = 0.25, mdot 1.8%';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % dirs{end+1} = 'varts_1'; dir_names{end+1} = 'varts_1';
 % dirs{end+1} = 'varts_2'; dir_names{end+1} = 'varts_2';
@@ -139,13 +139,13 @@ dirs{end+1} = '../series14.5.1/A0/A0-Run-DDES-Steady-mdot1.5-LB1.72'; dir_names{
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 % Probe point selection. %
 %%%%%%%%%%%%%%%%%%%%%%%%%%
-% probeIDs = [1, 261, 264, 267, 270, 273];
+probeIDs = [1, 261, 264, 267, 270, 273];
 % probeIDs = [11, 10, 9, 8];
 % probeIDs = [1, 261, 264, 267]; % Upper blower
 % probeIDs = [1, 291, 294, 297, 300]; % Lower blower
 % probeIDs = [1, 261, 264, 267, 270, 291, 294, 297, 300]; % Upper AND Lower blowers
 % probeIDs = [38:42, 53:57]; % AIP z = -2 in
-probeIDs = [43:47, 58:62]; % AIP z =  0 in
+% probeIDs = [43:47, 58:62]; % AIP z =  0 in
 % probeIDs = [48:52, 63:67]; % AIP z = +2 in
 % probeIDs = [267];
 % probeIDs = [302, 303, 267, 304, 305]; % Five span-wise UB throat probes (horizontal).
